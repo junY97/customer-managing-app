@@ -1,3 +1,4 @@
+const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
@@ -8,31 +9,32 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 
 
-app.get('/api/customers', (req, res) => {
-  res.send(
-    [
-      {
-        'id': 1,
-        'name': '조준영',
-        'image': 'https://placeimg.com/64/64/any/1',
-        'birthday': '970804',
-        'gender': '남자',
-        'job': '프리랜서',
-      },
-      {
-        'id': 2,
-        'name': '장원녕',
-        'image': 'https://placeimg.com/64/64/any/2',
-        'birthday': '980904',
-        'gender': '남자',
-        'job': '대학생',
-      }
-    ]
-  )
-
+const data  = fs.readFileSync('./database.json');
+const conf  = JSON.parse(data);
+const mysql = require('mysql');
+const connection = mysql.createConnection({
+  host:conf.host,
+  user:conf.user,
+  password:conf.password,
+  port:conf.port,
+  database:conf.database
 });
-console.log(3);
 
+connection.connect(err=>{
+  console.log(err);
+});
+
+app.get('/api/customers', (req, res) => {
+  connection.query('select * from customer',(err,results)=>{
+    if(err){
+      console.log(err);
+    }
+    else{
+      res.send(results);
+      console.log(results);
+    }
+  });
+});
 
 app.listen(4000, () => {
   console.log('server is loading');
