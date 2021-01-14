@@ -31,6 +31,7 @@ app.get('/api/customers', (req, res) => {
   )
 
 });
+console.log(3);
 
 
 app.listen(4000, () => {
